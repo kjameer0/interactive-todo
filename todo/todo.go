@@ -1,29 +1,32 @@
-package main
+package todo
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/aidarkhanov/nanoid"
 )
 
-type app struct {
-	Tasks          map[string]*task `json:"tasks"`
+type App struct {
+	Tasks          map[string]*Task `json:"tasks"`
 	InsertionOrder []string         `json:"insertionOrder"`
 	saveLocation   string
 	configPath     string
-	config         *Config
+	Config         *Config
 }
 
-func newApp() *app {
-	tasks := make(map[string]*task, 100)
-	return &app{Tasks: tasks}
+func NewApp(configPath string) *App {
+	tasks := make(map[string]*Task, 100)
+	a := &App{Tasks: tasks, configPath: configPath}
+	c, err := a.LoadConfig()
+	if err != nil {
+		log.Fatal("config path not provided, ended application")
+	}
+	a.Config = c
+	return a
 }
-func newTask(name string, beginDate time.Time) *task {
+func NewTask(name string, beginDate time.Time) *Task {
 	if name == "" {
 		log.Fatal("a task must have a name")
 	}
@@ -32,14 +35,14 @@ func newTask(name string, beginDate time.Time) *task {
 	if err != nil {
 		log.Fatal(err)
 	}
-	t := &task{Id: taskId, Name: name, BeginDate: beginDate}
+	t := &Task{Id: taskId, Name: name, BeginDate: beginDate}
 	return t
 }
-func (a *app) listInsertionOrder(showComplete bool, showFutureTasks bool) []*task {
-	tasks := make([]*task, 0, len(a.InsertionOrder))
+func (a *App) ListInsertionOrder(showComplete bool, showFutureTasks bool) []*Task {
+	tasks := make([]*Task, 0, len(a.InsertionOrder))
 	for _, t := range a.InsertionOrder {
 		curTask := a.Tasks[t]
-		if !showComplete && curTask.isComplete() {
+		if !showComplete && curTask.IsComplete() {
 			continue
 		}
 		if time.Now().Compare(curTask.BeginDate) == -1 && showFutureTasks {
@@ -51,20 +54,20 @@ func (a *app) listInsertionOrder(showComplete bool, showFutureTasks bool) []*tas
 }
 
 // if completion date is zero value then the task is incomplete
-type task struct {
+type Task struct {
 	Id             string    `json:"id"`
 	Name           string    `json:"name"`
 	CompletionDate time.Time `json:"completionDate"`
 	BeginDate      time.Time `json:"beginDate"`
 }
 
-func (t *task) isComplete() bool {
+func (t *Task) IsComplete() bool {
 	return !t.CompletionDate.IsZero()
 }
 
-func (t *task) String() string {
+func (t *Task) String() string {
 	var completed string
-	if !t.isComplete() {
+	if !t.IsComplete() {
 		completed = "❌"
 	} else {
 		completed = "✅"
@@ -78,14 +81,14 @@ func (t *task) String() string {
 	return fmt.Sprintf("%s %s %s", t.Name, completed, completionDate)
 }
 
-func addTask(a *app, taskText string, beginTime time.Time) {
-	addedTask := newTask(taskText, beginTime)
+func addTask(a *App, taskText string, beginTime time.Time) {
+	addedTask := NewTask(taskText, beginTime)
 	a.Tasks[addedTask.Id] = addedTask
 	a.InsertionOrder = append(a.InsertionOrder, addedTask.Id)
-	saveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
+	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
-func removeTask(a *app, taskId string) bool {
+func removeTask(a *App, taskId string) bool {
 	if _, ok := a.Tasks[taskId]; !ok {
 		fmt.Println("hi")
 		return false
@@ -100,17 +103,17 @@ func removeTask(a *app, taskId string) bool {
 		filteredInsertionOrder = append(filteredInsertionOrder, id)
 	}
 	a.InsertionOrder = filteredInsertionOrder
-	saveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
+	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 	return true
 }
 
-func removeAllTasks(a *app) {
+func removeAllTasks(a *App) {
 	a.InsertionOrder = []string{}
 	clear(a.Tasks)
-	saveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
+	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
-func listTasks(a *app) []string {
+func listTasks(a *App) []string {
 	tasks := []string{}
 	for _, taskId := range a.InsertionOrder {
 		if taskId == "" {
@@ -118,14 +121,14 @@ func listTasks(a *app) []string {
 		}
 		curTask := a.Tasks[taskId]
 		//show a task if it not complete or if show complete and task
-		if !a.config.ShowComplete && curTask.isComplete() {
+		if !a.Config.ShowComplete && curTask.IsComplete() {
 			continue
 		}
 		if time.Now().Compare(curTask.BeginDate) == -1 {
 			continue
 		}
 		var completed string
-		if !curTask.isComplete() {
+		if !curTask.IsComplete() {
 			completed = "❌"
 		} else {
 			completed = "✅"
@@ -139,14 +142,14 @@ func listTasks(a *app) []string {
 	return tasks
 }
 
-func updateTask(a *app, t *task) {
+func updateTask(a *App, t *Task) {
 	var zeroTime time.Time
-	if !t.isComplete() {
+	if !t.IsComplete() {
 		t.CompletionDate = time.Now()
 	} else {
 		t.CompletionDate = zeroTime
 	}
-	saveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
+	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
 func monthDayYear(t time.Time) string {
@@ -163,39 +166,7 @@ func addDayToDate(t time.Time, days int) time.Time {
 	return aheadTime
 }
 
-type saveData struct {
-	Tasks          map[string]*task `json:"tasks"`
+type SaveData struct {
+	Tasks          map[string]*Task `json:"tasks"`
 	InsertionOrder []string         `json:"insertionOrder"`
-}
-
-func saveToFile(saveLocation string, insertionOrder []string, tasks map[string]*task) {
-	s := saveData{}
-	s.Tasks = tasks
-	s.InsertionOrder = insertionOrder
-	taskJson, err := json.Marshal(s)
-	if err != nil {
-		log.Fatal("failed to convert tasks to JSON")
-	}
-	err = os.WriteFile(saveLocation, taskJson, 0644)
-	if err != nil {
-		log.Fatal("failed to write to file ", saveLocation)
-	}
-}
-
-func readTasksFromFile(saveLocation string, insertionOrder []string, tasks map[string]*task) ([]string, map[string]*task) {
-	data, err := os.ReadFile(saveLocation)
-	s := saveData{}
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			log.Fatal("Task file does not exist")
-		}
-		log.Fatal("failed to read from save location", err)
-	}
-	json.Unmarshal(data, &s)
-	finalInsertionOrder := s.InsertionOrder
-	var taskMap map[string]*task
-	if len(s.Tasks) > 0 {
-		taskMap = s.Tasks
-	}
-	return finalInsertionOrder, taskMap
 }
