@@ -21,7 +21,7 @@ func SaveToFile(saveLocation string, insertionOrder []string, tasks map[string]*
 	}
 }
 
-func readTasksFromFile(saveLocation string, insertionOrder []string, tasks map[string]*Task) ([]string, map[string]*Task) {
+func readTasksFromFile(saveLocation string) ([]string, map[string]*Task) {
 	data, err := os.ReadFile(saveLocation)
 	s := SaveData{}
 	if err != nil {

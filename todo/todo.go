@@ -16,9 +16,14 @@ type App struct {
 	Config         *Config
 }
 
-func NewApp(configPath string) *App {
+func NewApp(configPath string, saveLocation string) *App {
 	tasks := make(map[string]*Task, 100)
-	a := &App{Tasks: tasks, configPath: configPath}
+	a := &App{Tasks: tasks, configPath: configPath, saveLocation: saveLocation}
+
+	insertionOrder, taskMap := readTasksFromFile(saveLocation)
+	a.InsertionOrder = insertionOrder
+	a.Tasks = taskMap
+
 	c, err := a.LoadConfig()
 	if err != nil {
 		log.Fatal("config path not provided, ended application")
@@ -26,6 +31,7 @@ func NewApp(configPath string) *App {
 	a.Config = c
 	return a
 }
+
 func NewTask(name string, beginDate time.Time) *Task {
 	if name == "" {
 		log.Fatal("a task must have a name")
@@ -55,10 +61,15 @@ func (a *App) ListInsertionOrder(showComplete bool, showFutureTasks bool) []*Tas
 
 // if completion date is zero value then the task is incomplete
 type Task struct {
-	Id             string    `json:"id"`
-	Name           string    `json:"name"`
-	CompletionDate time.Time `json:"completionDate"`
-	BeginDate      time.Time `json:"beginDate"`
+	Id             string     `json:"id"`
+	Name           string     `json:"name"`
+	CompletionDate time.Time  `json:"completionDate"`
+	BeginDate      time.Time  `json:"beginDate"`
+	Subtasks       []*subtask `json:"subtasks"`
+}
+type subtask struct {
+	Name      string `json:"name"`
+	Completed bool   `json:"completed"`
 }
 
 func (t *Task) IsComplete() bool {
@@ -81,14 +92,14 @@ func (t *Task) String() string {
 	return fmt.Sprintf("%s %s %s", t.Name, completed, completionDate)
 }
 
-func addTask(a *App, taskText string, beginTime time.Time) {
+func (a *App) AddTask(taskText string, beginTime time.Time) {
 	addedTask := NewTask(taskText, beginTime)
 	a.Tasks[addedTask.Id] = addedTask
 	a.InsertionOrder = append(a.InsertionOrder, addedTask.Id)
 	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
-func removeTask(a *App, taskId string) bool {
+func (a *App) RemoveTask(taskId string) bool {
 	if _, ok := a.Tasks[taskId]; !ok {
 		fmt.Println("hi")
 		return false
@@ -107,13 +118,13 @@ func removeTask(a *App, taskId string) bool {
 	return true
 }
 
-func removeAllTasks(a *App) {
+func (a *App) RemoveAllTasks() {
 	a.InsertionOrder = []string{}
 	clear(a.Tasks)
 	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
-func listTasks(a *App) []string {
+func (a *App) ListTasks() []string {
 	tasks := []string{}
 	for _, taskId := range a.InsertionOrder {
 		if taskId == "" {
@@ -142,7 +153,7 @@ func listTasks(a *App) []string {
 	return tasks
 }
 
-func updateTask(a *App, t *Task) {
+func (a *App) UpdateTask(t *Task) {
 	var zeroTime time.Time
 	if !t.IsComplete() {
 		t.CompletionDate = time.Now()
@@ -164,6 +175,15 @@ func addDayToDate(t time.Time, days int) time.Time {
 	midnight := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
 	aheadTime := midnight.Add(time.Hour * 24 * time.Duration(days))
 	return aheadTime
+}
+
+func generateDaysList(t time.Time, numDays int) []string {
+	dateList := []string{}
+	for i := 0; i < numDays; i++ {
+		addedDay := addDayToDate(t, i)
+		dateList = append(dateList, monthDayYear(addedDay))
+	}
+	return dateList
 }
 
 type SaveData struct {

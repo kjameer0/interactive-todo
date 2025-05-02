@@ -1,0 +1,63 @@
+{
+  "tasks": {
+    "T6QqylNU_69RC9jabiAo": {
+      "id": "T6QqylNU_69RC9jabiAo",
+      "name": "Write First Draft",
+      "completionDate": "0001-01-01T00:00:00Z",
+      "beginDate": "2025-04-25T00:00:00-04:00",
+      "subtasks": [
+        {
+          "name": "Draft Outline",
+          "completed": true
+        },
+        {
+          "name": "Write First Draft",
+          "completed": false
+        },
+        {
+          "name": "Review and Edit",
+          "completed": false
+        },
+        {
+          "name": "Draft Outline",
+          "completed": true
+        },
+        {
+          "name": "Write First Draft",
+          "completed": false
+        },
+        {
+          "name": "Review and Edit",
+          "completed": false
+        },
+        {
+          "name": "Draft Outline",
+          "completed": true
+        },
+        {
+          "name": "Write First Draft",
+          "completed": false
+        },
+        {
+          "name": "Review and Edit",
+          "completed": false
+        },
+        {
+          "name": "Draft Outline",
+          "completed": true
+        },
+        {
+          "name": "Write First Draft",
+          "completed": false
+        },
+        {
+          "name": "Review and Edit",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "insertionOrder": [
+    "T6QqylNU_69RC9jabiAo"
+  ]
+}
