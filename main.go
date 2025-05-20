@@ -6,10 +6,11 @@ import (
 )
 
 type ui struct {
-	app              *tview.Application
-	optionsMenu      *tview.List
-	output           *tview.Flex
-	messageContainer *tview.TextView
+	app                *tview.Application
+	optionsMenu        *tview.List
+	output             *tview.Flex
+	messageContainer   *tview.TextView
+	globalEventManager *globalEventManager
 }
 
 func main() {
