@@ -20,7 +20,7 @@ type globalEventManager struct {
 }
 
 // number of events that can be registered
-func (a *ui) NewGlobalEventManager() *globalEventManager {
+func NewGlobalEventManager() *globalEventManager {
 	return &globalEventManager{KeyEventMap: make(map[rune]func(), 62)}
 }
 

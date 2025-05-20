@@ -13,20 +13,27 @@ type ui struct {
 	globalEventManager *globalEventManager
 }
 
-func main() {
-	// TODO: write event core architecture
+func NewUi() *ui {
+	uiGlobalEventManager := NewGlobalEventManager()
 	ui := &ui{
-		app:              tview.NewApplication(),
-		optionsMenu:      tview.NewList(),
-		output:           tview.NewFlex(),
-		messageContainer: tview.NewTextView().SetText("Message"),
+		app:                tview.NewApplication(),
+		optionsMenu:        tview.NewList(),
+		output:             tview.NewFlex(),
+		messageContainer:   tview.NewTextView().SetText("Message"),
+		globalEventManager: uiGlobalEventManager,
 	}
+	ui.registerEvents()
+	return ui
+}
+
+func main() {
+	ui := NewUi()
 	configPath := "./config.json"
 	taskStoragePath := "./tasks.json"
 	taskManager := todo.NewApp(configPath, taskStoragePath)
 
 	createDefaultOutputMenu(ui, taskManager)
-
+	//TODO: how do i refactor this with global event manager
 	listTaskOption := newHandler("List Tasks", '0', listTaskHandler(ui, taskManager))
 	deleteTaskOption := newHandler("Delete Tasks", '1', listTaskHandler(ui, taskManager))
 	mainOptionsMenu := createOptions(ui, []*handler{listTaskOption, deleteTaskOption})
@@ -44,5 +51,3 @@ func main() {
 		panic(err)
 	}
 }
-
-//how do i handle the events? Should I handle events at the application level? technically we already have an event driven architecture, but I want to generalize some of the behavior.

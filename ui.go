@@ -27,12 +27,8 @@ func createOptions(ui *ui, handlers []*handler) *tview.List {
 	return list
 }
 
-// what does this function do?
+// function for creating a handler function for when the user wants to list out all of their tasks. should be registered witha a global event manager
 func listTaskHandler(ui *ui, taskManager *todo.App) func() {
-	//create single task menu
-	//populate menu with options
-	//create list of tasks themselves
-	// tasks := taskManager.ListInsertionOrder(false, false)
 	return func() {
 		//generate new list options(return to main menu)
 		createListTaskMenu(ui, taskManager)
