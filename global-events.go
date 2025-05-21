@@ -13,6 +13,7 @@ import (
 // delete event
 // what forms will events take?
 const charTotal = 62
+const CTRL_C = "Ctrl+C"
 
 type globalEventManager struct {
 	KeyEventMap map[rune]func()
@@ -21,13 +22,17 @@ type globalEventManager struct {
 
 // number of events that can be registered
 func NewGlobalEventManager() *globalEventManager {
-	return &globalEventManager{KeyEventMap: make(map[rune]func(), 62)}
+	return &globalEventManager{
+		KeyEventMap: make(map[rune]func(), 62),
+		DoEventsRun: true,
+	}
 }
 
 func (ui *ui) addGlobalEvent(key rune, event func()) error {
 	if _, ok := ui.globalEventManager.KeyEventMap[key]; ok {
 		return errors.New("event already exists")
 	}
+	AppendToFile("success")
 	ui.globalEventManager.KeyEventMap[key] = event
 	return nil
 }
@@ -58,15 +63,19 @@ func (ui *ui) getDoEventsRun() bool {
 }
 
 func (ui *ui) registerEvents() {
+	AppendToFile("start")
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if !ui.getDoEventsRun() {
+		if !ui.getDoEventsRun() || event.Name() == CTRL_C {
 			return event
 		}
+
 		registeredEvent, err := ui.getEvent(event.Rune())
 		if err != nil {
 			return nil
 		}
+
 		registeredEvent()
-		return nil
+
+		return event
 	})
 }

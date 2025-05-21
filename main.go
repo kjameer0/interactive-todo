@@ -34,8 +34,13 @@ func main() {
 
 	createDefaultOutputMenu(ui, taskManager)
 	//TODO: how do i refactor this with global event manager
-	listTaskOption := newHandler("List Tasks", '0', listTaskHandler(ui, taskManager))
-	deleteTaskOption := newHandler("Delete Tasks", '1', listTaskHandler(ui, taskManager))
+	//every event needs to go into the hashmap
+	//actually i need to think about refactoring the options menu itself
+	var zeroValueRune rune
+	listTaskOption := newHandler("0) List Tasks", zeroValueRune, nil)
+	deleteTaskOption := newHandler("1) Delete Tasks", zeroValueRune, nil)
+	ui.addGlobalEvent('0', listTaskHandler(ui, taskManager))
+	ui.addGlobalEvent('1', listTaskHandler(ui, taskManager))
 	mainOptionsMenu := createOptions(ui, []*handler{listTaskOption, deleteTaskOption})
 	ui.optionsMenu = mainOptionsMenu
 
