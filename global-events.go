@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -29,10 +30,6 @@ func NewGlobalEventManager() *globalEventManager {
 }
 
 func (ui *ui) addGlobalEvent(key rune, event func()) error {
-	if _, ok := ui.globalEventManager.KeyEventMap[key]; ok {
-		return errors.New("event already exists")
-	}
-	AppendToFile("success")
 	ui.globalEventManager.KeyEventMap[key] = event
 	return nil
 }
@@ -69,11 +66,12 @@ func (ui *ui) registerEvents() {
 			return event
 		}
 
+		AppendToFile("\n" + event.Name() + "\n")
 		registeredEvent, err := ui.getEvent(event.Rune())
 		if err != nil {
 			return nil
 		}
-
+		AppendToFile(fmt.Sprint(registeredEvent))
 		registeredEvent()
 
 		return event

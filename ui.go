@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
@@ -20,9 +22,13 @@ func newHandler(label string, shortcut rune, action func()) *handler {
 // populate a list with handler items
 func createOptions(ui *ui, handlers []*handler) *tview.List {
 	list := tview.NewList()
-
-	for _, hander := range handlers {
-		list.AddItem(hander.Label, "", hander.Shortcut, hander.Action)
+	var zeroValueRune rune
+	for _, handler := range handlers {
+		list.AddItem(handler.Label, "", zeroValueRune, nil)
+		err := ui.addGlobalEvent(handler.Shortcut, handler.Action)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	return list
 }
