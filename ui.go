@@ -140,3 +140,4 @@ func createShortCutKeys(table *tview.Table, n int) []rune {
 	}
 	return keyList
 }
+
