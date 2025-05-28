@@ -20,4 +20,10 @@ Rune[1]
 Rune[0]
 0x1009049c0
 Rune[0]
-0x1009049c0startsuccesssuccess
+0x1009049c0startsuccesssuccessstart
+Rune[0]
+0x100bec860
+Rune[0]
+0x100bec860
+Rune[0]
+0x100bec860
