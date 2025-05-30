@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -67,14 +66,13 @@ func (ui *ui) registerEvents() {
 			return event
 		}
 
-		AppendToFile("\n" + event.Name() + "\n")
 		registeredEvent, err := ui.getEvent(event.Rune())
 		if err != nil {
 			return nil
 		}
-		AppendToFile(fmt.Sprint(registeredEvent))
+
 		registeredEvent()
 
-		return event
+		return nil
 	})
 }

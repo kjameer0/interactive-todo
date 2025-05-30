@@ -41,7 +41,7 @@ func main() {
 	layout := tview.NewFlex().
 		AddItem(wrapper, 0, 2, false).
 		AddItem(ui.output, 0, 4, false)
-	if err := ui.app.SetRoot(layout, true).Run(); err != nil {
+	if err := ui.app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		// todo.SaveToFile()
 		panic(err)
 	}

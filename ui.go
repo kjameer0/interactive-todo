@@ -72,7 +72,11 @@ func listTaskHandler(ui *ui, taskManager *todo.App) func() {
 func generateMainOptionsMenu(ui *ui, taskManager *todo.App) {
 	ui.optionsMenu.Clear()
 	var handlers []*handler = []*handler{
-		newHandler("Add task", '0', func() {}),
+		newHandler("Add task", '0', func() {
+			ui.setDoEventsRun(false)
+			ui.output.Clear().AddItem(createAddTaskOutputMenu(ui, taskManager), 0, 2, true)
+			ui.app.SetFocus(ui.output)
+		}),
 		newHandler("Delete tasks", '1', func() {}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
@@ -85,8 +89,11 @@ func createDefaultOutputMenu(ui *ui, taskManager *todo.App) {
 }
 func createListTaskOutputMenu(ui *ui, taskManager *todo.App) {
 	ui.output.Clear()
+
 	tasks := taskManager.ListInsertionOrder(false, false)
 	table := generateListTaskOutputMenu(ui, taskManager, tasks)
+	table.SetFixed(1, 3)
+
 	shortcutKeys := createShortCutKeys(table, len(tasks))
 	for idx, key := range shortcutKeys {
 		row := table.GetCell(idx+1, 0)
