@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kjameer0/interactive-todo/todo"
@@ -15,12 +16,26 @@ type handler struct {
 
 // create a new handler method than can be passed to a tview list
 func newHandler(label string, shortcut rune, action func()) *handler {
-	return &handler{Label: label, Shortcut: shortcut, Action: action}
+	labelWithShortcut := fmt.Sprintf("%c) %s", shortcut, label)
+	return &handler{Label: labelWithShortcut, Shortcut: shortcut, Action: action}
 }
 
 // populate a list with handler items
 func createOptions(ui *ui, handlers []*handler) *tview.List {
 	list := tview.NewList()
+	var zeroValueRune rune
+	for _, handler := range handlers {
+		list.AddItem(handler.Label, "", zeroValueRune, nil)
+		err := ui.addGlobalEvent(handler.Shortcut, handler.Action)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	return list
+}
+
+func updateOptions(ui *ui, handlers []*handler, list *tview.List) *tview.List {
+	list.Clear()
 	var zeroValueRune rune
 	for _, handler := range handlers {
 		list.AddItem(handler.Label, "", zeroValueRune, nil)
@@ -56,20 +71,28 @@ func listTaskHandler(ui *ui, taskManager *todo.App) func() {
 // can i at least generate the main menu, allow the user to press 0, and render the list of individual tasks
 func generateMainOptionsMenu(ui *ui, taskManager *todo.App) {
 	ui.optionsMenu.Clear()
-	var handlers []handler = []handler{
-		*newHandler("List tasks", '0', listTaskHandler(ui, taskManager)),
-		*newHandler("Add task", '1', func() {}),
-		*newHandler("Delete tasks", '2', func() {}),
+	var handlers []*handler = []*handler{
+		newHandler("Add task", '0', func() {}),
+		newHandler("Delete tasks", '1', func() {}),
 	}
-	for _, handler := range handlers {
-		ui.optionsMenu.AddItem(handler.Label, "", handler.Shortcut, handler.Action)
-	}
+	updateOptions(ui, handlers, ui.optionsMenu)
 }
 func createDefaultOutputMenu(ui *ui, taskManager *todo.App) {
 	ui.output.Clear()
 	tasks := taskManager.ListInsertionOrder(false, false)
 	table := createTaskTable(ui, taskManager, tasks)
 	ui.output.AddItem(table, 0, 1, false)
+}
+func createListTaskOutputMenu(ui *ui, taskManager *todo.App) {
+	ui.output.Clear()
+	tasks := taskManager.ListInsertionOrder(false, false)
+	table := generateListTaskOutputMenu(ui, taskManager, tasks)
+	shortcutKeys := createShortCutKeys(table, len(tasks))
+	for idx, key := range shortcutKeys {
+		row := table.GetCell(idx+1, 0)
+		row.SetText(string(key))
+	}
+	ui.output.AddItem(table, 0, 2, false)
 }
 
 func createTaskTable(ui *ui, taskManager *todo.App, taskList []*todo.Task) *tview.Table {

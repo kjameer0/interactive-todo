@@ -30,6 +30,7 @@ func NewGlobalEventManager() *globalEventManager {
 }
 
 func (ui *ui) addGlobalEvent(key rune, event func()) error {
+	AppendToFile("adding event")
 	ui.globalEventManager.KeyEventMap[key] = event
 	return nil
 }

@@ -36,9 +36,14 @@ func generateListTaskOutputMenu(ui *ui, taskManager *todo.App, taskList []*todo.
 
 func createListTaskMenu(ui *ui, taskManager *todo.App) {
 	ui.optionsMenu.Clear()
-	ui.optionsMenu.AddItem("Return to main menu", "", '0', func() {
+	mainMenuHandler := newHandler("Return to main menu", '0', func() {
 		//generate main menu
 		generateMainOptionsMenu(ui, taskManager)
-		createDefaultOutputMenu(ui, taskManager)
+		generateListTaskOutputMenu(ui, taskManager, taskManager.ListInsertionOrder(false, false))
 	})
+	updateOptions(ui, []*handler{mainMenuHandler}, ui.optionsMenu)
+}
+
+func addTaskHandler(ui *ui, taskManager *todo.App) {
+	
 }

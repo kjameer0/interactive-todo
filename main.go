@@ -32,25 +32,16 @@ func main() {
 	taskStoragePath := "./tasks.json"
 	taskManager := todo.NewApp(configPath, taskStoragePath)
 
-	createDefaultOutputMenu(ui, taskManager)
-	//TODO: how do i refactor this with global event manager
-	//i have to go back and refactor the rest of the events
-	//i also need to
-	//every event needs to go into the hashmap
-	//actually i need to think about refactoring the options menu itself
-	// var zeroValueRune rune
-	listTaskOption := newHandler("0) List Tasks", '0', listTaskHandler(ui, taskManager))
-	deleteTaskOption := newHandler("1) Delete Tasks", '1', listTaskHandler(ui, taskManager))
-	mainOptionsMenu := createOptions(ui, []*handler{listTaskOption, deleteTaskOption})
-	ui.optionsMenu = mainOptionsMenu
+	generateMainOptionsMenu(ui, taskManager)
+	createListTaskOutputMenu(ui, taskManager)
 
 	wrapper := tview.NewFlex().SetDirection(tview.FlexColumnCSS)
 	wrapper.AddItem(ui.messageContainer, 3, 1, false)
-	wrapper.AddItem(ui.optionsMenu, 0, 2, true)
+	wrapper.AddItem(ui.optionsMenu, 0, 3, false)
 	layout := tview.NewFlex().
-		AddItem(wrapper, 0, 1, false).
-		AddItem(ui.output, 0, 3, false)
-	if err := ui.app.SetRoot(layout, true).EnableMouse(true).SetFocus(ui.optionsMenu).Run(); err != nil {
+		AddItem(wrapper, 0, 2, false).
+		AddItem(ui.output, 0, 4, false)
+	if err := ui.app.SetRoot(layout, true).Run(); err != nil {
 		// todo.SaveToFile()
 		panic(err)
 	}
