@@ -60,7 +60,6 @@ func (ui *ui) getDoEventsRun() bool {
 }
 
 func (ui *ui) registerEvents() {
-	AppendToFile("start")
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if !ui.getDoEventsRun() || event.Name() == CTRL_C {
 			return event
@@ -75,4 +74,8 @@ func (ui *ui) registerEvents() {
 
 		return nil
 	})
+}
+
+func (ui *ui) clearAllEvents() {
+	clear(ui.globalEventManager.KeyEventMap)
 }

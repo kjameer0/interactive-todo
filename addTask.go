@@ -7,6 +7,23 @@ import (
 	"github.com/rivo/tview"
 )
 
+func initializeAddTaskMenu(ui *ui) {
+	ui.output.Clear()
+	ui.optionsMenu.Clear()
+	ui.clearAllEvents()
+	ui.setDoEventsRun(false)
+}
+
+func navigateToAddTaskMenu(ui *ui, taskManager *todo.App) {
+	initializeAddTaskMenu(ui)
+
+	form := createAddTaskOutputMenu(ui, taskManager)
+	ui.output.AddItem(form, 0, 2, true)
+	generateMainOptionsMenu(ui, taskManager)
+	//focus the form so user can immediately start typing
+	ui.app.SetFocus(ui.output)
+}
+
 // form to add a new task
 // form needs to be closed on any event that navigates away
 func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
@@ -24,7 +41,7 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 			taskName = "invalid"
 		}
 		taskManager.AddTask(taskName, time.Now())
-		closeForm(ui, taskManager)()
+		navigateToMainMenu(ui, taskManager)
 	})
 	form.SetCancelFunc(closeForm(ui, taskManager))
 	return form
@@ -32,9 +49,6 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 
 func closeForm(ui *ui, taskManager *todo.App) func() {
 	return func() {
-		ui.app.SetFocus(ui.optionsMenu)
-		generateMainOptionsMenu(ui, taskManager)
-		createListTaskOutputMenu(ui, taskManager)
-		ui.setDoEventsRun(true)
+		navigateToMainMenu(ui, taskManager)
 	}
 }

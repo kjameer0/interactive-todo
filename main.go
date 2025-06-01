@@ -32,8 +32,7 @@ func main() {
 	taskStoragePath := "./tasks.json"
 	taskManager := todo.NewApp(configPath, taskStoragePath)
 
-	generateMainOptionsMenu(ui, taskManager)
-	createListTaskOutputMenu(ui, taskManager)
+	navigateToMainMenu(ui, taskManager)
 
 	wrapper := tview.NewFlex().SetDirection(tview.FlexColumnCSS)
 	wrapper.AddItem(ui.messageContainer, 3, 1, false)

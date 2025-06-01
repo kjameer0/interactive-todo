@@ -7,7 +7,7 @@ import (
 )
 
 // list of single tasks that can be selected to open single task menu
-func generateListTaskOutputMenu(ui *ui, taskManager *todo.App, taskList []*todo.Task) *tview.Table {
+func generateListTaskOutputTable(ui *ui, taskManager *todo.App, taskList []*todo.Task) *tview.Table {
 	taskTable := tview.NewTable().SetSelectable(false, false)
 	taskTable.SetBorders(true)
 	keyCell := tview.NewTableCell("Key")
@@ -34,16 +34,3 @@ func generateListTaskOutputMenu(ui *ui, taskManager *todo.App, taskList []*todo.
 	return taskTable
 }
 
-func createListTaskMenu(ui *ui, taskManager *todo.App) {
-	ui.optionsMenu.Clear()
-	mainMenuHandler := newHandler("Return to main menu", '0', func() {
-		//generate main menu
-		generateMainOptionsMenu(ui, taskManager)
-		generateListTaskOutputMenu(ui, taskManager, taskManager.ListInsertionOrder(false, false))
-	})
-	updateOptions(ui, []*handler{mainMenuHandler}, ui.optionsMenu)
-}
-
-func addTaskHandler(ui *ui, taskManager *todo.App) {
-	
-}
