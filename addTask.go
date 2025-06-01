@@ -8,9 +8,7 @@ import (
 )
 
 func initializeAddTaskMenu(ui *ui) {
-	ui.output.Clear()
-	ui.optionsMenu.Clear()
-	ui.clearAllEvents()
+	ui.resetUI()
 	ui.setDoEventsRun(false)
 }
 
@@ -19,7 +17,7 @@ func navigateToAddTaskMenu(ui *ui, taskManager *todo.App) {
 
 	form := createAddTaskOutputMenu(ui, taskManager)
 	ui.output.AddItem(form, 0, 2, true)
-	generateMainOptionsMenu(ui, taskManager)
+	generateAddTaskOptionsMenu(ui, taskManager)
 	//focus the form so user can immediately start typing
 	ui.app.SetFocus(ui.output)
 }
@@ -47,6 +45,15 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 	return form
 }
 
+func generateAddTaskOptionsMenu(ui *ui, taskManager *todo.App) {
+
+	var handlers []*handler = []*handler{
+		newHandler("Return to Main menu", rune(27), func() {
+			navigateToMainMenu(ui, taskManager)
+		}),
+	}
+	updateOptions(ui, handlers, ui.optionsMenu)
+}
 func closeForm(ui *ui, taskManager *todo.App) func() {
 	return func() {
 		navigateToMainMenu(ui, taskManager)

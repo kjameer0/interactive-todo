@@ -32,14 +32,15 @@ func main() {
 	taskStoragePath := "./tasks.json"
 	taskManager := todo.NewApp(configPath, taskStoragePath)
 
-	navigateToMainMenu(ui, taskManager)
-
 	wrapper := tview.NewFlex().SetDirection(tview.FlexColumnCSS)
 	wrapper.AddItem(ui.messageContainer, 3, 1, false)
 	wrapper.AddItem(ui.optionsMenu, 0, 3, false)
 	layout := tview.NewFlex().
 		AddItem(wrapper, 0, 2, false).
-		AddItem(ui.output, 0, 4, false)
+		AddItem(ui.output, 0, 4, true)
+
+	navigateToMainMenu(ui, taskManager)
+
 	if err := ui.app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		// todo.SaveToFile()
 		panic(err)

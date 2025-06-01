@@ -61,6 +61,9 @@ func (ui *ui) getDoEventsRun() bool {
 
 func (ui *ui) registerEvents() {
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Name() == "Down" || event.Name() == "Up" {
+			return event
+		}
 		if !ui.getDoEventsRun() || event.Name() == CTRL_C {
 			return event
 		}

@@ -16,8 +16,18 @@ type handler struct {
 
 // create a new handler method than can be passed to a tview list
 func newHandler(label string, shortcut rune, action func()) *handler {
-	labelWithShortcut := fmt.Sprintf("%c) %s", shortcut, label)
+	labelWithShortcut := fmt.Sprintf("%s) %s", keyRuneToLabel(shortcut), label)
 	return &handler{Label: labelWithShortcut, Shortcut: shortcut, Action: action}
+}
+
+func keyRuneToLabel(key rune) string {
+	switch key {
+	// ESC button
+	case rune(27):
+		return "esc"
+	default:
+		return string(key)
+	}
 }
 
 func updateOptions(ui *ui, handlers []*handler, list *tview.List) *tview.List {
@@ -32,8 +42,6 @@ func updateOptions(ui *ui, handlers []*handler, list *tview.List) *tview.List {
 	}
 	return list
 }
-
-
 
 func createTaskTable(ui *ui, taskManager *todo.App, taskList []*todo.Task) *tview.Table {
 	taskTable := tview.NewTable().SetSelectable(false, false)
