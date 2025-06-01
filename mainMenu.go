@@ -33,7 +33,7 @@ func generateMainOptionsMenu(ui *ui, taskManager *todo.App) {
 func createListTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Table {
 	tasks := taskManager.ListInsertionOrder(false, false)
 	table := generateListTaskOutputTable(ui, taskManager, tasks)
-	table.SetFixed(1, 3)
+	table.SetFixed(1, 4)
 
 	shortcutKeys := createShortCutKeys(table, len(tasks))
 	for idx, key := range shortcutKeys {

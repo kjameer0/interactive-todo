@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
 )
 
@@ -41,30 +40,6 @@ func updateOptions(ui *ui, handlers []*handler, list *tview.List) *tview.List {
 		}
 	}
 	return list
-}
-
-func createTaskTable(ui *ui, taskManager *todo.App, taskList []*todo.Task) *tview.Table {
-	taskTable := tview.NewTable().SetSelectable(false, false)
-	taskTable.SetBorders(true)
-
-	nameCell := tview.NewTableCell("Name")
-	statusCell := tview.NewTableCell("Completion Status")
-	statusCell.SetAlign(tview.AlignRight)
-
-	taskTable.SetCell(0, 0, nameCell)
-	taskTable.SetCell(0, 1, statusCell)
-
-	for rowNum, t := range taskList {
-		cell := tview.NewTableCell(t.Name)
-		complete := "✅"
-		if t.IsComplete() {
-			complete = "❌"
-		}
-		completionCell := tview.NewTableCell(complete).SetAlign(tview.AlignCenter)
-		taskTable.SetCell(rowNum+1, 0, cell)
-		taskTable.SetCell(rowNum+1, 1, completionCell)
-	}
-	return taskTable
 }
 
 func createShortCutKeys(table *tview.Table, n int) []rune {
