@@ -25,7 +25,9 @@ func generateMainOptionsMenu(ui *ui, taskManager *todo.App) {
 		newHandler("Add task", '0', func() {
 			navigateToAddTaskMenu(ui, taskManager)
 		}),
-		newHandler("Delete tasks", '1', func() {}),
+		newHandler("Delete tasks", '1', func() {
+			navigateToDeleteMenu(ui, taskManager)
+		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
 }
