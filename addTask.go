@@ -46,9 +46,8 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 }
 
 func generateAddTaskOptionsMenu(ui *ui, taskManager *todo.App) {
-
 	var handlers []*handler = []*handler{
-		newHandler("Return to Main menu", rune(27), func() {
+		newHandler("Return to Main menu", rune(0), func() {
 			navigateToMainMenu(ui, taskManager)
 		}),
 	}

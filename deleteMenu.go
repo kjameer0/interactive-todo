@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
@@ -21,14 +23,18 @@ func navigateToDeleteMenu(ui *ui, taskManager *todo.App) {
 func registerDeletionEvents(ui *ui, taskManager *todo.App, table *tview.Table) {
 	//TODO: figure out how to not run into a memory problem by spreading out values in the array
 	idsToDelete := make([]string, table.GetRowCount())
-	ui.addGlobalEvent(rune(tcell.KeyEnter), submitDeletionFunc(ui, taskManager, &idsToDelete))
+	markedForDeletionCount := 0
+	ui.addGlobalEvent(rune(tcell.KeyEnter), submitDeletionFunc(ui, taskManager, &idsToDelete, &markedForDeletionCount))
 	for rowIdx := 1; rowIdx < table.GetRowCount(); rowIdx++ {
 		keyNameCell := table.GetCell(rowIdx, 0)
 		taskNameCell := table.GetCell(rowIdx, 1)
 		idCell := table.GetCell(rowIdx, 3)
 		keyRune := rune([]byte(keyNameCell.Text)[0])
+		//toggle whether or not a task will be deleted
 		ui.addGlobalEvent(keyRune, func() {
 			if indexOf(idCell.Text, idsToDelete) == -1 {
+				markedForDeletionCount++
+
 				idsToDelete[rowIdx] = idCell.Text
 
 				selectedColor := tcell.ColorRed
@@ -37,34 +43,47 @@ func registerDeletionEvents(ui *ui, taskManager *todo.App, table *tview.Table) {
 				taskNameCell.SetTextColor(selectedColor)
 				idCell.SetTextColor(selectedColor)
 			} else {
+				markedForDeletionCount--
 				idsToDelete[rowIdx] = ""
 
-				keyNameCell.SetTextColor(tcell.ColorWhite)
-				taskNameCell.SetTextColor(tcell.ColorWhite)
-				idCell.SetTextColor(tcell.ColorWhite)
+				deselectColor := tcell.ColorWhite
+
+				keyNameCell.SetTextColor(deselectColor)
+				taskNameCell.SetTextColor(deselectColor)
+				idCell.SetTextColor(deselectColor)
 			}
 		})
 	}
 
 }
 
-func submitDeletionFunc(ui *ui, taskManager *todo.App, taskIdsToDelete *[]string) func() {
+func submitDeletionFunc(ui *ui, taskManager *todo.App, taskIdsToDelete *[]string, numMarkedForDeletion *int) func() {
 	return func() {
-		modal := tview.NewModal().
-			SetText("Do you want to quit the application?").
-			AddButtons([]string{"Quit", "Cancel"}).
-			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				if buttonLabel == "Quit" {
-					ui.app.Stop()
+		//add count to deletion
+		modal := tview.NewTextView().
+			SetText(fmt.Sprintf("Do you want to delete %d task(s)\n a: Confirm Deletion b: Go back", *numMarkedForDeletion))
+
+		ui.output.Clear().
+			AddItem(modal, 0, 100, true)
+		ui.clearAllEvents()
+		ui.addGlobalEvent('a', func() {
+			for _, id := range *taskIdsToDelete {
+				if id != "" {
+					taskManager.RemoveTask(id)
 				}
-			})
-		ui.output.AddItem(modal, 0, 1, true)
+			}
+			navigateToMainMenu(ui, taskManager)
+		})
+
+		ui.addGlobalEvent('b', func() {
+			navigateToDeleteMenu(ui, taskManager)
+		})
 	}
 }
 
 func generateDeleteOptionsMenu(ui *ui, taskManager *todo.App) {
 	var handlers []*handler = []*handler{
-		newHandler("Return to Main menu", rune(27), func() {
+		newHandler("Return to Main menu", rune(0), func() {
 			navigateToMainMenu(ui, taskManager)
 		}),
 	}
@@ -84,15 +103,4 @@ func indexOf[T string](itemToFind T, list []T) int {
 		}
 	}
 	return -1
-}
-
-func densifyStringArray(list []string) []string {
-	densifiedArray := make([]string, 0, len(list)/2)
-	for _, item := range list {
-		if item != "" {
-			densifiedArray = append(densifiedArray, item)
-		}
-	}
-	return densifiedArray
-
 }

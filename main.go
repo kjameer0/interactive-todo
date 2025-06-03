@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
 )
@@ -38,7 +39,7 @@ func main() {
 	layout := tview.NewFlex().
 		AddItem(wrapper, 0, 2, false).
 		AddItem(ui.output, 0, 4, true)
-
+	wrapper.SetBackgroundColor(tcell.ColorBlack)
 	navigateToMainMenu(ui, taskManager)
 
 	if err := ui.app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {

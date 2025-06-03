@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -62,6 +63,7 @@ func (ui *ui) getDoEventsRun() bool {
 func (ui *ui) registerEvents() {
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		AppendToFile(event.Name())
+		AppendToFile(fmt.Sprintf("%d", event.Rune()))
 		if event.Name() == "Down" || event.Name() == "Up" {
 			return event
 		}

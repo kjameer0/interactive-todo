@@ -15,7 +15,6 @@ func generateListTaskOutputTable(ui *ui, taskManager *todo.App, taskList []*todo
 	statusCell := tview.NewTableCell("Completed")
 	idCell := tview.NewTableCell("ID")
 	statusCell.SetAlign(tview.AlignRight)
-
 	taskTable.SetCell(0, 0, keyCell)
 	taskTable.SetCell(0, 1, nameCell)
 	taskTable.SetCell(0, 2, statusCell)

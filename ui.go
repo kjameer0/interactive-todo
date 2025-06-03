@@ -22,7 +22,7 @@ func newHandler(label string, shortcut rune, action func()) *handler {
 func keyRuneToLabel(key rune) string {
 	switch key {
 	// ESC button
-	case rune(27):
+	case rune(0):
 		return "esc"
 	default:
 		return string(key)
