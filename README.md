@@ -17,3 +17,12 @@ func createListTaskMenu(ui *ui, taskManager *todo.App) {
 }
 ```
 This function should a bunch of events that will navigate to different pages. each of the functions called by the events should create the required options menu and output menu. But one output menu can have many submenus. Like the dashboard for a single task can have
+
+
+## MVP
+A user should be able to:
+1. add tasks complete
+2. delete tasks complete
+3. update tasks
+4. associate a workspace with a task?
+5. view task dashboard?
