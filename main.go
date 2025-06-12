@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
@@ -12,6 +14,7 @@ type ui struct {
 	output             *tview.Flex
 	messageContainer   *tview.TextView
 	globalEventManager *globalEventManager
+	messageChannel     chan string
 }
 
 func NewUi() *ui {
@@ -22,9 +25,29 @@ func NewUi() *ui {
 		output:             tview.NewFlex(),
 		messageContainer:   tview.NewTextView().SetText("Message"),
 		globalEventManager: uiGlobalEventManager,
+		messageChannel:     make(chan string),
 	}
 	ui.registerEvents()
 	return ui
+}
+
+func messageReceiver(ui *ui) {
+	var timer *time.Timer
+	for msg := range ui.messageChannel {
+		ui.messageContainer.SetText(msg)
+
+		if timer != nil {
+			timer.Reset(3 * time.Second)
+		} else {
+			timer = time.NewTimer(3 * time.Second)
+		}
+
+		go func() {
+			<-timer.C
+			ui.messageContainer.SetText("")
+			ui.app.Draw()
+		}()
+	}
 }
 
 func main() {
@@ -32,6 +55,8 @@ func main() {
 	configPath := "./config.json"
 	taskStoragePath := "./tasks.json"
 	taskManager := todo.NewApp(configPath, taskStoragePath)
+
+	go messageReceiver(ui)
 
 	wrapper := tview.NewFlex().SetDirection(tview.FlexColumnCSS)
 	wrapper.AddItem(ui.messageContainer, 3, 1, false)
@@ -44,6 +69,7 @@ func main() {
 
 	if err := ui.app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		// todo.SaveToFile()
+		close(ui.messageChannel)
 		panic(err)
 	}
 }

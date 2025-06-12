@@ -21,7 +21,6 @@ func navigateToDeleteMenu(ui *ui, taskManager *todo.App) {
 	ui.app.SetFocus(ui.output)
 }
 func registerDeletionEvents(ui *ui, taskManager *todo.App, table *tview.Table) {
-	//TODO: figure out how to not run into a memory problem by spreading out values in the array
 	idsToDelete := make([]string, table.GetRowCount())
 	markedForDeletionCount := 0
 	ui.addGlobalEvent(rune(tcell.KeyEnter), submitDeletionFunc(ui, taskManager, &idsToDelete, &markedForDeletionCount))
@@ -90,12 +89,6 @@ func generateDeleteOptionsMenu(ui *ui, taskManager *todo.App) {
 	updateOptions(ui, handlers, ui.optionsMenu)
 }
 
-// create menu
-// menu has letters
-// for each letter register event to delete task
-// grab id from row
-// add to array
-// when user confirms use array to delete all ids
 func indexOf[T string](itemToFind T, list []T) int {
 	for idx, elem := range list {
 		if elem == itemToFind {

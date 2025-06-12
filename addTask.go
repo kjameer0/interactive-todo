@@ -35,10 +35,12 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 	})
 	form.AddButton("Submit", func() {
 		if len(taskName) == 0 {
-			//TODO: add the message handler functionality in order to display error message
-			taskName = "invalid"
+			ui.messageChannel <- "Error: Task name cannot be empty"
+			navigateToAddTaskMenu(ui, taskManager)
+			return
 		}
 		taskManager.AddTask(taskName, time.Now())
+		ui.messageChannel <- "Task Added!"
 		navigateToMainMenu(ui, taskManager)
 	})
 	form.SetCancelFunc(closeForm(ui, taskManager))
