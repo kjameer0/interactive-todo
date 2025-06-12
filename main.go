@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
@@ -29,25 +27,6 @@ func NewUi() *ui {
 	}
 	ui.registerEvents()
 	return ui
-}
-
-func messageReceiver(ui *ui) {
-	var timer *time.Timer
-	for msg := range ui.messageChannel {
-		ui.messageContainer.SetText(msg)
-
-		if timer != nil {
-			timer.Reset(3 * time.Second)
-		} else {
-			timer = time.NewTimer(3 * time.Second)
-		}
-
-		go func() {
-			<-timer.C
-			ui.messageContainer.SetText("")
-			ui.app.Draw()
-		}()
-	}
 }
 
 func main() {
