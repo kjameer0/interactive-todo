@@ -1,44 +1,38 @@
 package main
 
 import (
-	"time"
-
 	"github.com/kjameer0/interactive-todo/todo"
 	"github.com/rivo/tview"
 )
 
 func initializeUpdateTaskMenu(ui *ui) {
 	ui.resetUI()
+	ui.setDoEventsRun(true)
+}
+func initializeUpdateTaskForm(ui *ui) {
+	ui.resetUI()
 	ui.setDoEventsRun(false)
 }
 
-func navigateToUpdateTaskMenu(ui *ui, taskManager *todo.App, t *todo.Task) {
-	initializeUpdateTaskMenu(ui)
-	// generate options
-	// open select menu
-	table := createListTaskOutputMenu(ui, taskManager)
-	var selectedTask *todo.Task
-	// extract choice
-	// open form with prefilled values for task
-}
-
-// form to add a new task
 // form needs to be closed on any event that navigates away
 func createUpdateTaskOutputFormMenu(ui *ui, taskManager *todo.App, t *todo.Task) *tview.Form {
 	taskName := ""
 
 	form := tview.NewForm()
-	form.SetTitle("Add a new task(Press Esc to cancel)")
+	form.SetTitle("Update new task(Press Esc to cancel)")
 	form.SetBorder(true)
 	form.AddInputField("Task name", t.Name, 25, nil, func(text string) {
 		taskName = text
 	})
 	form.AddButton("Submit", func() {
 		if len(taskName) == 0 {
-			//TODO: add the message handler functionality in order to display error message
-			taskName = "invalid"
+			ui.messageChannel <- "Error: Task name cannot be empty"
+			navigateToUpdateTaskForm(ui, taskManager, t)
+			return
 		}
-		taskManager.AddTask(taskName, time.Now())
+		//update all task fields here
+		t.Name = taskName
+		taskManager.UpdateTaskInfo(t)
 		navigateToMainMenu(ui, taskManager)
 	})
 	form.SetCancelFunc(closeForm(ui, taskManager))
@@ -46,7 +40,8 @@ func createUpdateTaskOutputFormMenu(ui *ui, taskManager *todo.App, t *todo.Task)
 }
 
 func createUpdateTaskOutputSelectMenu(ui *ui, taskManager *todo.App) {
-
+	table := createListTaskOutputMenu(ui, taskManager)
+	registerSelectUpdateEvents(ui, taskManager, table)
 }
 
 func generateUpdateTaskOptionsMenu(ui *ui, taskManager *todo.App) {
@@ -56,4 +51,37 @@ func generateUpdateTaskOptionsMenu(ui *ui, taskManager *todo.App) {
 		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
+}
+
+func registerSelectUpdateEvents(ui *ui, taskManager *todo.App, table *tview.Table) {
+	for rowIdx := 1; rowIdx < table.GetRowCount(); rowIdx++ {
+		keyNameCell := table.GetCell(rowIdx, 0)
+		idCell := table.GetCell(rowIdx, 3)
+		keyRune := rune([]byte(keyNameCell.Text)[0])
+
+		ui.addGlobalEvent(keyRune, func() {
+			//navigate to update menu with task
+			t, err := taskManager.GetTaskById(idCell.Text)
+			if err != nil {
+				ui.messageChannel <- err.Error()
+			}
+			navigateToUpdateTaskForm(ui, taskManager, t)
+		})
+	}
+
+}
+
+func navigateToUpdateTaskForm(ui *ui, taskManager *todo.App, t *todo.Task) {
+	initializeUpdateTaskForm(ui)
+	form := createUpdateTaskOutputFormMenu(ui, taskManager, t)
+	ui.output.AddItem(form, 0, 2, true)
+	generateUpdateTaskOptionsMenu(ui, taskManager)
+	//focus the form so user can immediately start typing
+	ui.app.SetFocus(ui.output)
+}
+
+func navigateToUpdateTaskSelectTable(ui *ui, taskManager *todo.App) {
+	initializeUpdateTaskMenu(ui)
+	generateUpdateTaskOptionsMenu(ui, taskManager)
+	createUpdateTaskOutputSelectMenu(ui, taskManager)
 }

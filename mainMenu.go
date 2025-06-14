@@ -28,6 +28,9 @@ func generateMainOptionsMenu(ui *ui, taskManager *todo.App) {
 		newHandler("Delete tasks", '1', func() {
 			navigateToDeleteMenu(ui, taskManager)
 		}),
+		newHandler("Update tasks", '2', func() {
+			navigateToUpdateTaskSelectTable(ui, taskManager)
+		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
 }

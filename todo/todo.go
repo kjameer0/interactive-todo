@@ -44,6 +44,12 @@ func NewTask(name string, beginDate time.Time) *Task {
 	t := &Task{Id: taskId, Name: name, BeginDate: beginDate}
 	return t
 }
+func (a *App) GetTaskById(id string) (*Task, error) {
+	if t, ok := a.Tasks[id]; ok {
+		return t, nil
+	}
+	return nil, fmt.Errorf("no task witht the id %s", id)
+}
 func (a *App) ListInsertionOrder(showComplete bool, showFutureTasks bool) []*Task {
 	tasks := make([]*Task, 0, len(a.InsertionOrder))
 	for _, t := range a.InsertionOrder {
@@ -160,6 +166,10 @@ func (a *App) UpdateTask(t *Task) {
 	} else {
 		t.CompletionDate = zeroTime
 	}
+	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
+}
+
+func (a *App) UpdateTaskInfo(t *Task) {
 	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
