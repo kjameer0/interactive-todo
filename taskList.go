@@ -22,9 +22,9 @@ func generateListTaskOutputTable(ui *ui, taskManager *todo.App, taskList []*todo
 
 	for rowNum, t := range taskList {
 		cell := tview.NewTableCell(t.Name)
-		complete := "✅"
+		complete := "❌"
 		if t.IsComplete() {
-			complete = "❌"
+			complete = "✅"
 		}
 		keyNameCell := tview.NewTableCell("").SetTextColor(tcell.ColorWhite).SetAlign(tview.AlignCenter)
 		completionCell := tview.NewTableCell(complete).SetAlign(tview.AlignCenter)

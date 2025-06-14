@@ -16,7 +16,7 @@ func initializeMainMenu(ui *ui) {
 func navigateToMainMenu(ui *ui, taskManager *todo.App) {
 	initializeMainMenu(ui)
 	generateMainOptionsMenu(ui, taskManager)
-	createListTaskOutputMenu(ui, taskManager)
+	createListTaskOutputMenu(ui, taskManager, false)
 	ui.app.SetFocus(ui.output)
 }
 
@@ -28,15 +28,18 @@ func generateMainOptionsMenu(ui *ui, taskManager *todo.App) {
 		newHandler("Delete tasks", '1', func() {
 			navigateToDeleteMenu(ui, taskManager)
 		}),
-		newHandler("Update tasks", '2', func() {
-			navigateToUpdateTaskSelectTable(ui, taskManager)
+		newHandler("Update incomplete tasks", '2', func() {
+			navigateToUpdateTaskSelectTable(ui, taskManager, false)
+		}),
+		newHandler("Update any task", '3', func() {
+			navigateToUpdateTaskSelectTable(ui, taskManager, true)
 		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
 }
 
-func createListTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Table {
-	tasks := taskManager.ListInsertionOrder(false, false)
+func createListTaskOutputMenu(ui *ui, taskManager *todo.App, showComplete bool) *tview.Table {
+	tasks := taskManager.ListInsertionOrder(showComplete, false)
 	table := generateListTaskOutputTable(ui, taskManager, tasks)
 	table.SetFixed(1, 4)
 	table.SetEvaluateAllRows(true)

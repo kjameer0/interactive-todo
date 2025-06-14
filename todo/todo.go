@@ -169,6 +169,16 @@ func (a *App) UpdateTask(t *Task) {
 	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }
 
+func (a *App) ToggleTaskCompletion(t *Task) *Task {
+	var zeroTime time.Time
+	if !t.IsComplete() {
+		t.CompletionDate = time.Now()
+	} else {
+		t.CompletionDate = zeroTime
+	}
+	return t
+}
+
 func (a *App) UpdateTaskInfo(t *Task) {
 	SaveToFile(a.saveLocation, a.InsertionOrder, a.Tasks)
 }

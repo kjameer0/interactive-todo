@@ -16,7 +16,7 @@ func initializeDeleteMenu(ui *ui) {
 func navigateToDeleteMenu(ui *ui, taskManager *todo.App) {
 	initializeDeleteMenu(ui)
 	generateDeleteOptionsMenu(ui, taskManager)
-	table := createListTaskOutputMenu(ui, taskManager)
+	table := createListTaskOutputMenu(ui, taskManager, false)
 	registerDeletionEvents(ui, taskManager, table)
 	ui.app.SetFocus(ui.output)
 }

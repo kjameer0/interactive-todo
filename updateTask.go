@@ -16,13 +16,17 @@ func initializeUpdateTaskForm(ui *ui) {
 
 // form needs to be closed on any event that navigates away
 func createUpdateTaskOutputFormMenu(ui *ui, taskManager *todo.App, t *todo.Task) *tview.Form {
-	taskName := ""
+	taskName := t.Name
 
 	form := tview.NewForm()
 	form.SetTitle("Update new task(Press Esc to cancel)")
 	form.SetBorder(true)
 	form.AddInputField("Task name", t.Name, 25, nil, func(text string) {
 		taskName = text
+	})
+
+	form.AddCheckbox("Completed", t.IsComplete(), func(checked bool) {
+		taskManager.ToggleTaskCompletion(t)
 	})
 	form.AddButton("Submit", func() {
 		if len(taskName) == 0 {
@@ -32,15 +36,17 @@ func createUpdateTaskOutputFormMenu(ui *ui, taskManager *todo.App, t *todo.Task)
 		}
 		//update all task fields here
 		t.Name = taskName
+
 		taskManager.UpdateTaskInfo(t)
+		ui.messageChannel <- "Task successfully updated"
 		navigateToMainMenu(ui, taskManager)
 	})
 	form.SetCancelFunc(closeForm(ui, taskManager))
 	return form
 }
 
-func createUpdateTaskOutputSelectMenu(ui *ui, taskManager *todo.App) {
-	table := createListTaskOutputMenu(ui, taskManager)
+func createUpdateTaskOutputSelectMenu(ui *ui, taskManager *todo.App, showComplete bool) {
+	table := createListTaskOutputMenu(ui, taskManager, showComplete)
 	registerSelectUpdateEvents(ui, taskManager, table)
 }
 
@@ -80,8 +86,9 @@ func navigateToUpdateTaskForm(ui *ui, taskManager *todo.App, t *todo.Task) {
 	ui.app.SetFocus(ui.output)
 }
 
-func navigateToUpdateTaskSelectTable(ui *ui, taskManager *todo.App) {
+func navigateToUpdateTaskSelectTable(ui *ui, taskManager *todo.App, showComplete bool) {
 	initializeUpdateTaskMenu(ui)
 	generateUpdateTaskOptionsMenu(ui, taskManager)
-	createUpdateTaskOutputSelectMenu(ui, taskManager)
+	createUpdateTaskOutputSelectMenu(ui, taskManager, showComplete)
+	ui.app.SetFocus(ui.output)
 }
