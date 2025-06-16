@@ -41,7 +41,7 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 		}
 		taskManager.AddTask(taskName, time.Now())
 		ui.messageChannel <- "Task Added!"
-		navigateToMainMenu(ui, taskManager)
+		navigateToMainMenu(ui, taskManager, 1)
 	})
 	form.SetCancelFunc(closeForm(ui, taskManager))
 	return form
@@ -50,13 +50,13 @@ func createAddTaskOutputMenu(ui *ui, taskManager *todo.App) *tview.Form {
 func generateAddTaskOptionsMenu(ui *ui, taskManager *todo.App) {
 	var handlers []*handler = []*handler{
 		newHandler("Return to Main menu", rune(0), func() {
-			navigateToMainMenu(ui, taskManager)
+			navigateToMainMenu(ui, taskManager, 1)
 		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
 }
 func closeForm(ui *ui, taskManager *todo.App) func() {
 	return func() {
-		navigateToMainMenu(ui, taskManager)
+		navigateToMainMenu(ui, taskManager, 1)
 	}
 }

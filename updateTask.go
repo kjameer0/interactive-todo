@@ -39,21 +39,27 @@ func createUpdateTaskOutputFormMenu(ui *ui, taskManager *todo.App, t *todo.Task)
 
 		taskManager.UpdateTaskInfo(t)
 		ui.messageChannel <- "Task successfully updated"
-		navigateToMainMenu(ui, taskManager)
+		navigateToMainMenu(ui, taskManager, 1)
 	})
 	form.SetCancelFunc(closeForm(ui, taskManager))
 	return form
 }
 
-func createUpdateTaskOutputSelectMenu(ui *ui, taskManager *todo.App, showComplete bool) {
-	table := createListTaskOutputMenu(ui, taskManager, showComplete)
+func createUpdateTaskOutputSelectMenu(ui *ui, taskManager *todo.App, showComplete bool, page int) {
+	table := createListTaskOutputMenu(ui, taskManager, showComplete, page)
 	registerSelectUpdateEvents(ui, taskManager, table)
 }
 
-func generateUpdateTaskOptionsMenu(ui *ui, taskManager *todo.App) {
+func generateUpdateTaskOptionsMenu(ui *ui, taskManager *todo.App, showComplete bool, page int) {
 	var handlers []*handler = []*handler{
 		newHandler("Return to Main menu", rune(0), func() {
-			navigateToMainMenu(ui, taskManager)
+			navigateToMainMenu(ui, taskManager, 1)
+		}),
+		newHandler("Next Page", '1', func() {
+			navigateToUpdateTaskSelectTable(ui, taskManager, showComplete, page+1)
+		}),
+		newHandler("Previous Page", '2', func() {
+			navigateToUpdateTaskSelectTable(ui, taskManager, showComplete, page-1)
 		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)
@@ -81,14 +87,14 @@ func navigateToUpdateTaskForm(ui *ui, taskManager *todo.App, t *todo.Task) {
 	initializeUpdateTaskForm(ui)
 	form := createUpdateTaskOutputFormMenu(ui, taskManager, t)
 	ui.output.AddItem(form, 0, 2, true)
-	generateUpdateTaskOptionsMenu(ui, taskManager)
+	generateUpdateTaskOptionsMenu(ui, taskManager, false, 1)
 	//focus the form so user can immediately start typing
 	ui.app.SetFocus(ui.output)
 }
 
-func navigateToUpdateTaskSelectTable(ui *ui, taskManager *todo.App, showComplete bool) {
+func navigateToUpdateTaskSelectTable(ui *ui, taskManager *todo.App, showComplete bool, page int) {
 	initializeUpdateTaskMenu(ui)
-	generateUpdateTaskOptionsMenu(ui, taskManager)
-	createUpdateTaskOutputSelectMenu(ui, taskManager, showComplete)
+	generateUpdateTaskOptionsMenu(ui, taskManager, showComplete, page)
+	createUpdateTaskOutputSelectMenu(ui, taskManager, showComplete, page)
 	ui.app.SetFocus(ui.output)
 }

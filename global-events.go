@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -30,7 +29,6 @@ func NewGlobalEventManager() *globalEventManager {
 }
 
 func (ui *ui) addGlobalEvent(key rune, event func()) error {
-	AppendToFile("adding event")
 	ui.globalEventManager.KeyEventMap[key] = event
 	return nil
 }
@@ -62,8 +60,6 @@ func (ui *ui) getDoEventsRun() bool {
 
 func (ui *ui) registerEvents() {
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		AppendToFile(event.Name())
-		AppendToFile(fmt.Sprintf("%d", event.Rune()))
 		if event.Name() == "Down" || event.Name() == "Up" {
 			return event
 		}

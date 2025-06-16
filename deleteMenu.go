@@ -13,10 +13,10 @@ func initializeDeleteMenu(ui *ui) {
 	ui.setDoEventsRun(true)
 }
 
-func navigateToDeleteMenu(ui *ui, taskManager *todo.App) {
+func navigateToDeleteMenu(ui *ui, taskManager *todo.App, page int) {
 	initializeDeleteMenu(ui)
-	generateDeleteOptionsMenu(ui, taskManager)
-	table := createListTaskOutputMenu(ui, taskManager, false)
+	generateDeleteOptionsMenu(ui, taskManager, page)
+	table := createListTaskOutputMenu(ui, taskManager, false, page)
 	registerDeletionEvents(ui, taskManager, table)
 	ui.app.SetFocus(ui.output)
 }
@@ -71,19 +71,25 @@ func submitDeletionFunc(ui *ui, taskManager *todo.App, taskIdsToDelete *[]string
 					taskManager.RemoveTask(id)
 				}
 			}
-			navigateToMainMenu(ui, taskManager)
+			navigateToMainMenu(ui, taskManager, 1)
 		})
 
 		ui.addGlobalEvent('b', func() {
-			navigateToDeleteMenu(ui, taskManager)
+			navigateToDeleteMenu(ui, taskManager, 1)
 		})
 	}
 }
 
-func generateDeleteOptionsMenu(ui *ui, taskManager *todo.App) {
+func generateDeleteOptionsMenu(ui *ui, taskManager *todo.App, page int) {
 	var handlers []*handler = []*handler{
 		newHandler("Return to Main menu", rune(0), func() {
-			navigateToMainMenu(ui, taskManager)
+			navigateToMainMenu(ui, taskManager, 1)
+		}),
+		newHandler("Next Page", '1', func() {
+			navigateToDeleteMenu(ui, taskManager, page+1)
+		}),
+		newHandler("Previous Page", '2', func() {
+			navigateToDeleteMenu(ui, taskManager, page-1)
 		}),
 	}
 	updateOptions(ui, handlers, ui.optionsMenu)

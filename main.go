@@ -44,7 +44,7 @@ func main() {
 		AddItem(wrapper, 0, 2, false).
 		AddItem(ui.output, 0, 4, true)
 	wrapper.SetBackgroundColor(tcell.ColorBlack)
-	navigateToMainMenu(ui, taskManager)
+	navigateToMainMenu(ui, taskManager, 1)
 
 	if err := ui.app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		// todo.SaveToFile()
